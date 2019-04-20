@@ -1,5 +1,6 @@
 #!/bin/bash
 
+mkdir -p /tmp/.docker
 if !(command -v docker >&-) || !(command -v docker-machine >&-) ; then
 	echo -e "\033[0;31mError: \033[0mPlease install the docker and docker-machine binaries on your system."
 	exit 1

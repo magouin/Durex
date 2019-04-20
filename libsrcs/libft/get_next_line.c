@@ -3,121 +3,118 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: magouin <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: vsteffen <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/08/31 18:52:58 by magouin           #+#    #+#             */
-/*   Updated: 2016/08/31 18:53:03 by magouin          ###   ########.fr       */
+/*   Created: 2016/09/01 14:02:42 by vsteffen          #+#    #+#             */
+/*   Updated: 2019/04/19 19:36:08 by magouin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include <stdlib.h>
 #include <libft.h>
 
-static t_gnl	*ft_lstdict(t_gnl *lst, const int n)
+#define GNL_PAGE 5
+
+static t_gnl	*search_fd(t_gnl **lst_fd, int fd)
 {
-	while (lst)
+	t_gnl *tmp;
+
+	tmp = *lst_fd;
+	while (tmp)
 	{
-		if (lst->fd == n)
-			return (lst);
-		lst = lst->next;
+		if (tmp->fd == fd)
+			break ;
+		tmp = tmp->next;
 	}
-	return (NULL);
+	if (!tmp)
+	{
+		if (!(tmp = malloc(sizeof(t_gnl))))
+			return (NULL);
+		tmp->next = *lst_fd;
+		tmp->fd = fd;
+		*tmp->line = 0;
+		*lst_fd = tmp;
+	}
+	return (tmp);
 }
 
-static t_gnl	*gnl_add_elem(t_gnl **list, const int fd)
+static intmax_t	ft_pow(int i, int j)
 {
-	t_gnl	*beginning;
-	t_gnl	*elem;
+	intmax_t	ret;
 
-	elem = mallocp(sizeof(t_gnl));
-	elem->fd = fd;
-	elem->line = NULL;
-	elem->next = NULL;
-	if (!(*list))
+	ret = 1;
+	while (j > 0)
 	{
-		*list = elem;
-		return (elem);
+		ret *= i;
+		j--;
 	}
-	beginning = (*list);
-	while ((*list)->next)
-		(*list) = (*list)->next;
-	(*list)->next = elem;
-	*list = beginning;
-	return (elem);
+	return (ret);
 }
 
-static char		*strjoin_secure(char *s1, char *s2)
+int				create_line(char **line, t_gnl *curr,
+	size_t *size, size_t *curr_size)
 {
-	char	*join;
+	char	c;
+	char	*tmp;
 
-	if (s1 == NULL && s2 == NULL)
-		return (NULL);
-	if (s1 == NULL)
+	c = 0;
+	while (*size < *curr_size + BUFF_SIZE + 1 && (c = 1))
+		*size *= 2;
+	if (c || !*line)
 	{
-		join = ft_strdup(s2);
-		return (join);
+		tmp = *line;
+		if (!(*line = malloc(*size)))
+			return (-1);
+		tmp ? (void)ft_strcpy(*line, tmp) : (void)(**line = 0);
+		free(tmp);
 	}
-	if (s2 == NULL)
+	if ((tmp = ft_strchr(curr->line, '\n')))
 	{
-		join = ft_strdup(s1);
-		ft_strdel(&s1);
-		return (join);
-	}
-	if (s1 != NULL && s2 != NULL)
-	{
-		join = ft_strjoin(s1, s2);
-		ft_strdel(&s1);
-		return (join);
-	}
-	return (NULL);
-}
-
-static int		newline_detected(char *stbuff, char **line,
-		int flag, t_gnl **elem)
-{
-	char			*nl;
-
-	if (flag == 0)
-	{
-		nl = ft_strchr(stbuff, '\n');
-		*line = ft_strsub(stbuff, 0, nl - stbuff);
-		ft_strcpy(stbuff, nl + 1);
+		ft_strncat(*line, curr->line, tmp - curr->line);
+		ft_strcpy(curr->line, tmp + 1);
 		return (1);
 	}
-	else
+	ft_strcat(*line, curr->line);
+	*curr_size += ft_strlen(curr->line);
+	*curr->line = 0;
+	return (0);
+}
+
+static int		get_line(char **line, t_gnl *curr)
+{
+	size_t	size;
+	size_t	curr_size;
+	int		ret;
+	int		tmp;
+
+	size = ft_pow(2, GNL_PAGE);
+	curr_size = 0;
+	ret = ft_strlen(curr->line);
+	while (*curr->line || (ret = read(curr->fd, curr->line, BUFF_SIZE)) > 0)
 	{
-		*line = ft_strdup((*elem)->line);
-		ft_strdel(&((*elem)->line));
-		return (1);
+		curr->line[ret] = 0;
+		if ((tmp = create_line(line, curr, &size, &curr_size)))
+			return (tmp);
 	}
+	if (ret < 0)
+		return (-1);
+	*(curr->line) = 0;
+	if (!*line)
+	{
+		*line = ft_strdup("");
+		return (0);
+	}
+	return (1);
 }
 
 int				get_next_line(const int fd, char **line)
 {
-	char			buff[BUFF_SIZE + 1];
-	static t_gnl	*lst = NULL;
-	t_gnl			*elem;
-	int				ret;
+	static t_gnl	*lst_fd = NULL;
+	t_gnl			*curr;
 
-	if (line == NULL || fd < 0)
+	if (!line)
 		return (-1);
-	if ((elem = ft_lstdict(lst, fd)) == NULL)
-		elem = gnl_add_elem(&lst, fd);
-	if ((elem->line && ft_strchr(elem->line, '\n') != NULL)
-			&& elem->line && elem->line[0])
-		return (newline_detected(elem->line, line, 0, NULL));
-	while ((ret = read(fd, buff, BUFF_SIZE)) > 0)
-	{
-		buff[ret] = '\0';
-		if ((elem->line = strjoin_secure(elem->line, buff)) == NULL)
-			return (-1);
-		if (ft_strchr(elem->line, '\n') != NULL)
-			return (newline_detected(elem->line, line, 0, NULL));
-	}
-	if (ret == -1)
+	*line = NULL;
+	if (!(curr = search_fd(&lst_fd, fd)))
 		return (-1);
-	if (elem->line && *(elem->line))
-		return (newline_detected(NULL, line, 1, &elem));
-	return (0);
+	return (get_line(line, curr));
 }

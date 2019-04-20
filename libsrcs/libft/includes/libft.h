@@ -20,7 +20,7 @@
 # include <stdlib.h>
 # include <libft.h>
 # include <stdarg.h>
-#include <stdint.h>
+# include <stdint.h>
 # define BUFF_SIZE 1000
 # define ABS(x) (x > 0 ? x : x * -1)
 

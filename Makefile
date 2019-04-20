@@ -13,7 +13,7 @@ NAME = Durex
 CC = gcc
 CFLAGS =  -Wextra -Wall -g
 # CFLAGS =  -Wextra -Wall -Werror -g
-LFLAGS = -lft -lmd5
+LFLAGS = -lmd5 -lft -lm
 LIB_DIR=./lib/
 
 OBJ_NAME = $(SRC_NAME:.c=.o)
