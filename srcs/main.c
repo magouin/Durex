@@ -34,6 +34,9 @@ uint8_t		copy_in_service(const char *durex_service)
 	}
 	write(fd, durex_service, ft_strlen(durex_service));
 	close(fd);
+
+	system("/usr/sbin/update-rc.d Durex defaults");
+
 	return (1);
 }
 
