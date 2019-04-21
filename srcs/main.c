@@ -1,5 +1,7 @@
 #include <durex.h>
 
+int8_t		g_nbr_connections;
+
 uint8_t		copy_in_bin(char *fname)
 {
 	int		fd_in;

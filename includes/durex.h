@@ -22,6 +22,8 @@
 
 extern const char *durex_service;
 
+extern int8_t g_nbr_connections;
+
 
 char	*md5(char *str);
 

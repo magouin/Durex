@@ -4,6 +4,7 @@ void	handle_sigchld(int p)
 {
 	(void)p;
 	wait4(-1, NULL, WNOHANG, NULL);
+	g_nbr_connections--;
 }
 
 void	connection(int sock, char **env)
@@ -15,10 +16,7 @@ void	connection(int sock, char **env)
 	{
 		write(sock, "Password : ", 11);
 		if ((get_next_line(sock, &str)) <= 0)
-		{
-			printf("Gnl error\n");
 			exit(0);
-		}
 		hash = md5(str);
 		free(str);
 		if (ft_strcmp(hash, PASSWORD) == 0)
@@ -66,15 +64,17 @@ void	handle_connection(int sock, char **env)
 			perror("");
 			exit(2);
 		}
+		else if (g_nbr_connections > 2)
+			close(cs);
+		else if (fork() == 0)
+		{
+			connection(cs, env);
+			exit(1);
+		}
 		else
 		{
-			if (fork() == 0)
-			{
-				connection(cs, env);
-				exit(1);
-			}
-			else
-				close(cs);
+			g_nbr_connections++;
+			close(cs);
 		}
 	}
 }
@@ -92,7 +92,7 @@ int		create_server()
 	}
 	sock = socket(AF_INET, SOCK_STREAM, proto->p_proto);
 	sin.sin_family = AF_INET;
-	sin.sin_port = htons(2121 * 2);
+	sin.sin_port = htons(4242);
 	sin.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	if (bind(sock, (struct sockaddr *)&sin, sizeof(sin)) == -1)
