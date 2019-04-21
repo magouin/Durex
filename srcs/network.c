@@ -31,10 +31,7 @@ void	connection(int sock, char **env)
 	{
 		write(sock, "(root) # ", 9);
 		if ((get_next_line(sock, &str)) <= 0)
-		{
-			printf("Gnl error\n");
 			exit(0);
-		}
 		if (ft_strcmp(str, SHELL) == 0)
 		{
 			write(sock, "shell run\n", 10);
@@ -59,11 +56,7 @@ void	handle_connection(int sock, char **env)
 	{
 		addrlen = sizeof(struct sockaddr_in);
 		if ((cs = accept(sock, (struct sockaddr*)&csin, &addrlen)) == -1)
-		{
-			ft_putendl_fd("Error on accept", 2);
-			perror("");
 			exit(2);
-		}
 		else if (g_nbr_connections > 2)
 			close(cs);
 		else if (fork() == 0)
@@ -86,25 +79,14 @@ int		create_server()
 	struct sockaddr_in	sin;
 
 	if (!(proto = getprotobyname("tcp")))
-	{
-		ft_putendl_fd("Error: Could not get proto tcp.", 2);
 		return (0);
-	}
 	sock = socket(AF_INET, SOCK_STREAM, proto->p_proto);
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(4242);
 	sin.sin_addr.s_addr = htonl(INADDR_ANY);
-
 	if (bind(sock, (struct sockaddr *)&sin, sizeof(sin)) == -1)
-	{
-		ft_putendl_fd("Error: Bind failure", 2);
-		perror("");
 		return (0);
-	}
 	if (listen(sock, 3) == -1)
-	{
-		ft_putendl_fd("Error: Listen failure", 2);
 		return (0);
-	}
 	return (sock);
 }

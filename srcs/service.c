@@ -1,5 +1,4 @@
-const char *durex_service = "\n\
-#!/bin/sh\n\
+const char *durex_service = "#!/bin/sh\n\
 \n\
 ### BEGIN INIT INFO\n\
 # Provides:          durex\n\
