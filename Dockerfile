@@ -11,6 +11,7 @@ RUN apt-get install -y clang
 RUN apt-get install -y psmisc
 RUN apt-get install -y procps
 RUN apt-get install -y netcat
+RUN apt-get install -y net-tools
 RUN sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" || true
 RUN git config --global user.email "magouin@student.42.fr"
 RUN echo "alias mr=\"make re\"\nalias mc=\"make clean\"\nalias m=\"make\"\nalias mf=\"make fclean\"" >> /root/.zshrc

@@ -5,9 +5,13 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <sys/file.h>
-# include <sys/socket.h>
+# include <sys/socket.h> 
 # include <sys/types.h>
 # include <netdb.h>
+# include <signal.h>
+# include <sys/time.h>
+# include <sys/resource.h>
+# include <sys/wait.h>
 
 # define BUF_SIZE 4096
 
@@ -24,7 +28,7 @@ char	*md5(char *str);
 /*
  *	network.c
  */
-void	handle_connection(int sock);
+void	handle_connection(int sock, char **env);
 int		create_server();
 
 

