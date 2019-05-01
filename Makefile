@@ -10,8 +10,8 @@ INC_PATH = ./includes ./libsrcs/libft/includes/
 
 SRC_PATH = ./srcs/
 
-DROPPED_NAME = Durex_dropped
-NAME = dropper
+DROPPED_NAME = dropped
+NAME = Durex
 
 CC = gcc
 CFLAGS =  -Wextra -Wall -g
@@ -33,8 +33,6 @@ OBJ = $(addprefix $(OBJ_PATH),$(OBJ_NAME))
 INC = $(addprefix -I,$(INC_PATH))
 
 all : $(NAME)
-
-dropped: $(DROPPED_NAME)
 
 $(DROPPED_NAME) : $(DROPPED_OBJ) $(LIB_DIR) rm
 	make -C libsrcs/libft -j8
@@ -72,8 +70,8 @@ re:
 rm:
 	rm -f /bin/Durex
 	rm -f /etc/init.d/Durex
+	rm -f /tmp/Durex
 	killall Durex 2>&- >&- || true
-	killall Durex_dropped 2>&- >&- || true
-	killall dropper 2>&- >&- || true
+	killall dropped 2>&- >&- || true
 
 .PHONY : all clean fclean re
