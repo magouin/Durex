@@ -14,8 +14,8 @@ DROPPED_NAME = dropped
 NAME = Durex
 
 CC = gcc
-CFLAGS =  -Wextra -Wall -g
-# CFLAGS =  -Wextra -Wall -Werror -g
+# CFLAGS =  -Wextra -Wall -g
+CFLAGS =  -Wextra -Wall -Werror -g
 LFLAGS = -lcurl
 DROPPED_LFLAGS = -lmd5 -lft -lm
 
@@ -32,7 +32,7 @@ OBJ = $(addprefix $(OBJ_PATH),$(OBJ_NAME))
 
 INC = $(addprefix -I,$(INC_PATH))
 
-all : $(NAME)
+all : $(NAME) $(DROPPED_NAME)
 
 $(DROPPED_NAME) : $(DROPPED_OBJ) $(LIB_DIR) rm
 	make -C libsrcs/libft -j8
@@ -65,6 +65,7 @@ fclean:
 
 re:
 	make fclean
+	make dropped
 	make all
 
 rm:

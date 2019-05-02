@@ -9,6 +9,7 @@
 
 size_t write_data(void *buffer, size_t size, size_t nmemb, void *fd_data)
 {
+	(void)size;
 	write(*(int*)fd_data, buffer, nmemb);
 	return nmemb;
 }
